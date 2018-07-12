@@ -23,10 +23,10 @@ using JuMP
 Variables for solving the problem (change these)
 =#
 # num_lineups is the total number of lineups
-num_lineups = 1
+num_lineups = 3
 
 # num_overlap is the maximum overlap of players between the lineups that you create
-num_overlap = 3
+num_overlap = 7
 
 # path_hitters is a string that gives the path to the csv file with the hitters information (see example file for suggested format)
 path_hitters = "example_hitters4.csv"
@@ -59,22 +59,24 @@ function one_lineup_Type_4(hitters, pitchers, lineups, num_overlap, num_hitters,
     @addConstraint(m, sum{hitters_lineup[i], i=1:num_hitters} == 8)
 
     # 1 C
-    #@addConstraint(m, sum{catchers[i]*hitters_lineup[i], i=1:num_hitters} == 1)
+    @addConstraint(m, sum{catchers[i]*hitters_lineup[i], i=1:num_hitters} >= 1)
 
     # 1 1B
-    #@addConstraint(m, sum{firstbasemen[i]*hitters_lineup[i], i=1:num_hitters} == 1)
+    @addConstraint(m, sum{firstbasemen[i]*hitters_lineup[i], i=1:num_hitters} >= 1)
 
     # 1 2B
-    #@addConstraint(m, sum{secondbasemen[i]*hitters_lineup[i], i=1:num_hitters} == 1)
+    @addConstraint(m, sum{secondbasemen[i]*hitters_lineup[i], i=1:num_hitters} >= 1)
 
     # 1 3B
-    #@addConstraint(m, sum{thirdbasemen[i]*hitters_lineup[i], i=1:num_hitters} == 1)
+    @addConstraint(m, sum{thirdbasemen[i]*hitters_lineup[i], i=1:num_hitters} >= 1)
 
     # 1 SS
-    #@addConstraint(m, sum{shortstops[i]*hitters_lineup[i], i=1:num_hitters} == 1)
+    @addConstraint(m, sum{shortstops[i]*hitters_lineup[i], i=1:num_hitters} >= 1)
 
     # 3 OF
-    #@addConstraint(m, sum{outfielders[i]*hitters_lineup[i], i=1:num_hitters} == 3)
+    @addConstraint(m, sum{outfielders[i]*hitters_lineup[i], i=1:num_hitters} >= 3)
+
+
 
     # Financial Constraint
     #@addConstraint(m, sum{hitters[i,:Salary]*hitters_lineup[i], i=1:num_hitters} + sum{pitchers[i,:Salary]*pitchers_lineup[i], i=1:num_pitchers} <= 50000)
@@ -90,16 +92,6 @@ function one_lineup_Type_4(hitters, pitchers, lineups, num_overlap, num_hitters,
     # No pitchers going against hitters
     #@addConstraint(m, constr[i=1:num_pitchers], 8*pitchers_lineup[i] + sum{pitcher_opponents[k, i]*hitters_lineup[k], k=1:num_hitters}<=8)
 
-num_playerpositions = sum(sum(catchers)+sum(firstbasemen)+sum(secondbasemen)+sum(thirdbasemen)+sum(shortstops)+sum(outfielders))
-#println(num_playerpositions)
-#println(num_hitters)
-
-#println(catchers)
-#println(firstbasemen)
-#println(secondbasemen)
-#println(thirdbasemen)
-#println(shortstops)
-#println(outfielders)
 
     # Must have at least one complete line in each lineup
     # @defVar(m, line_stack[i=1:num_lines], Bin)
@@ -125,16 +117,20 @@ num_playerpositions = sum(sum(catchers)+sum(firstbasemen)+sum(secondbasemen)+sum
     @printf("\n")
     status = solve(m);
 
+    #for x=1:num_lineups
 
 
     # Puts the output of one lineup into a format that will be used later
     if status==:Optimal
         hitters_lineup_copy = Array(Int64, 0)
+        hitters_positions = Array(Int64, 0)
         for i=1:num_hitters
             if getValue(hitters_lineup[i]) >= 0.9 && getValue(hitters_lineup[i]) <= 1.1
                 hitters_lineup_copy = vcat(hitters_lineup_copy, fill(1,1))
+                println(hitters[i,:Name])
             else
                 hitters_lineup_copy = vcat(hitters_lineup_copy, fill(0,1))
+                hitters_positons = vcat(hitters_lineup_copy, fill(0,1))
             end
         end
         for i=1:num_pitchers
@@ -146,6 +142,7 @@ num_playerpositions = sum(sum(catchers)+sum(firstbasemen)+sum(secondbasemen)+sum
         end
         return(hitters_lineup_copy)
     end
+
 end
 
 
@@ -384,7 +381,6 @@ function create_lineups(num_lineups, num_overlap, path_hitters, path_pitchers, f
         hitters_teams = vcat(hitters_teams, player_info') #identifies which players are on what teams. Array will be as long as there are many teams
     end
 
-println(hitters_teams)
 
     # Create pitcher identifiers so you know who they are playing
     opponents = pitchers[:Opponent]
@@ -449,11 +445,12 @@ println(hitters_teams)
     end
     num_lines = size(team_lines)[2]
 
-
     # Lineups using formulation as the stacking type
-    the_lineup= formulation(hitters, pitchers, hcat(zeros(Int, num_hitters + num_pitchers), zeros(Int, num_hitters + num_pitchers)), num_overlap, num_hitters, num_pitchers, catchers, firstbasemen, secondbasemen, thirdbasemen, shortstops, outfielders, num_teams, hitters_teams, pitcher_opponents, team_lines, num_lines)
-    the_lineup2 = formulation(hitters, pitchers, hcat(the_lineup, zeros(Int, num_hitters + num_pitchers)), num_overlap, num_hitters, num_pitchers, catchers, firstbasemen, secondbasemen, thirdbasemen, shortstops, outfielders, num_teams, hitters_teams, pitcher_opponents, team_lines, num_lines)
-    tracer = hcat(the_lineup, the_lineup2)
+    lineupsA=hcat(zeros(Int, num_hitters + num_pitchers), zeros(Int, num_hitters + num_pitchers))
+    the_lineup= formulation(hitters, pitchers, lineupsA, num_overlap, num_hitters, num_pitchers, catchers, firstbasemen, secondbasemen, thirdbasemen, shortstops, outfielders, num_teams, hitters_teams, pitcher_opponents, team_lines, num_lines)
+    lineupsB=hcat(the_lineup, zeros(Int, num_hitters + num_pitchers))
+    the_lineup1 = formulation(hitters, pitchers, lineupsB, num_overlap, num_hitters, num_pitchers, catchers, firstbasemen, secondbasemen, thirdbasemen, shortstops, outfielders, num_teams, hitters_teams, pitcher_opponents, team_lines, num_lines)
+    tracer = hcat(the_lineup, the_lineup1)
     for i=1:(num_lineups-2)
         try
             thelineup=formulation(hitters, pitchers, tracer, num_overlap, num_hitters, num_pitchers, catchers, firstbasemen, secondbasemen, thirdbasemen, shortstops, outfielders, num_teams, hitters_teams, pitcher_opponents, team_lines, num_lines)
@@ -462,6 +459,14 @@ println(hitters_teams)
             break
         end
     end
+
+println(catchers)
+println(firstbasemen)
+println(secondbasemen)
+println(thirdbasemen)
+println(shortstops)
+println(outfields)
+println(tracer)
 
 
     # Create the output csv file
@@ -518,8 +523,3 @@ end
 
 # Running the code
 create_lineups(num_lineups, num_overlap, path_hitters, path_pitchers, formulation, path_to_output)
-
-new_hitters = readtable(path_to_new_hitters)
-num_output = size(new_hitters)[1]
-
-println(num_output)
