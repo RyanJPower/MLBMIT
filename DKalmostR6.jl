@@ -639,41 +639,177 @@ println(shortstops_matrix)
 println(outfielders_matrix)
 
 for j = 1:size(tracer)[2]
-    catchers_final = ["" "" "" "" "" "" "" ""]
-    firstbasmen_final = ["" "" "" "" "" "" "" ""]
-    secondbasemen_final = ["" "" "" "" "" "" "" ""]
-    thirdbasemen_final = ["" "" "" "" "" "" "" ""]
-    shortstops_final = ["" "" "" "" "" "" "" ""]
-    outfielders_final = ["" "" "" "" "" "" "" ""]
+    lineups_final = ["" "" "" "" "" "" "" ""]
     for i =1:num_hitters
         if tracer[i,j] == 1
             if catchers[i] == 1 && (hitters[i,:Position] == "C" || sum(catchers_matrix[j,:]) == 1)
-                catchers_final[1] = i
+                lineups_final[1] = string(i)
             elseif firstbasemen[i] == 1 && (hitters[i,:Position] == "1B" || sum(firstbasemen_matrix[j,:]) == 1)
-                firstbasmen_final[2] = "1"
+                lineups_final[2] = string(i)
             elseif secondbasemen[i] == 1 && (hitters[i,:Position] == "2B" || sum(secondbasemen_matrix[j,:]) == 1)
-                secondbasemen_final[3] = "1"
+                lineups_final[3] = string(i)
             elseif thirdbasemen[i] == 1 && (hitters[i,:Position] == "3B" || sum(thirdbasemen_matrix[j,:]) == 1)
-                thirdbasemen_final[4] = "1"
+                lineups_final[4] = string(i)
             elseif shortstops[i] == 1 && (hitters[i,:Position] == "SS" || sum(shortstops_matrix[j,:]) == 1)
-                shortstops_final[5] = "1"
+                lineups_final[5] = string(i)
             elseif outfielders[i] == 1 && (hitters[i,:Position] == "OF" || sum(outfielders_matrix[j,:]) == 3)
-                if outfielders_final[6] == ""
-                    outfielders_final[6] = "1"
-                elseif outfielders_final[7] ==""
-                    outfielders_final[7] = "1"
-                elseif outfielders_final[8] == ""
-                    outfielders_final[8] = "1"
+                if lineups_final[6] == ""
+                    lineups_final[6] = string(i)
+                elseif lineups_final[7] ==""
+                    lineups_final[7] = string(i)
+                elseif lineups_final[8] == ""
+                    lineups_final[8] = string(i)
                 end
             end
         end
     end
-    println(catchers_final)
-    #println(firstbasmen_final)
-    #println(secondbasemen_final)
-    #println(thirdbasemen_final)
-    #println(shortstops_final)
-    #println(outfielders_final)
+    f(lineups_final) = lineups_final == ""
+    leftovers = find(f, lineups_final)
+    num_leftovers = size(find(f, lineups_final))
+    println(leftovers)
+    for l = 1:num_leftovers[1]
+        for i = leftovers
+            println(i)
+            if tracer[i,j] == 1
+                if hitters[i,:Position] == "1B/C"
+                    if lineups_final[1] != ""
+                        lineups_final[2] = string(i)
+                    elseif lineups_final[2] != ""
+                        lineups_final[1] = string(i)
+                    end
+                end
+                if hitters[i,:Position] == "2B/C"
+                    if lineups_final[1] != ""
+                        lineups_final[3] = string(i)
+                    elseif lineups_final[3] != ""
+                        lineups_final[1] = string(i)
+                    end
+                end
+                if hitters[i,:Position] == "3B/C"
+                    if lineups_final[1] != ""
+                        lineups_final[4] = string(i)
+                    elseif lineups_final[4] != ""
+                        lineups_final[1] = string(i)
+                    end
+                end
+                if hitters[i,:Position] == "SS/C"
+                    if lineups_final[1] != ""
+                        lineups_final[5] = string(i)
+                    elseif lineups_final[5] != ""
+                        lineups_final[1] = string(i)
+                    end
+                end
+                if hitters[i,:Position] == "C/OF"
+                    if lineups_final[8] != ""
+                        lineups_final[1] = string(i)
+                    elseif lineups_final[1] != ""
+                        if lineups_final[6] == ""
+                            lineups_final[6] = string(i)
+                        elseif lineups_final[7] ==""
+                            lineups_final[7] = string(i)
+                        elseif lineups_final[8] == ""
+                            lineups_final[8] = string(i)
+                        end
+                    end
+                end
+                if hitters[i,:Position] == "1B/2B"
+                    if lineups_final[2] != ""
+                        lineups_final[3] = string(i)
+                    elseif lineups_final[3] != ""
+                        lineups_final[2] = string(i)
+                    end
+                end
+                if hitters[i,:Position] == "1B/3B"
+                    if lineups_final[2] != ""
+                        lineups_final[4] = string(i)
+                    elseif lineups_final[4] != ""
+                        lineups_final[2] = string(i)
+                    end
+                end
+                if hitters[i,:Position] == "1B/SS"
+                    if lineups_final[2] != ""
+                        lineups_final[5] = string(i)
+                    elseif lineups_final[5] != ""
+                        lineups_final[2] = string(i)
+                    end
+                end
+                if hitters[i,:Position] == "1B/OF"
+                    if lineups_final[8] != ""
+                        lineups_final[2] = string(i)
+                    elseif lineups_final[2] != ""
+                        if lineups_final[6] == ""
+                            lineups_final[6] = string(i)
+                        elseif lineups_final[7] ==""
+                            lineups_final[7] = string(i)
+                        elseif lineups_final[8] == ""
+                            lineups_final[8] = string(i)
+                        end
+                    end
+                end
+                if hitters[i,:Position] == "2B/3B"
+                    if lineups_final[3] != ""
+                        lineups_final[4] = string(i)
+                    elseif lineups_final[4] != ""
+                        lineups_final[3] = string(i)
+                    end
+                end
+                if hitters[i,:Position] == "2B/SS"
+                    if lineups_final[3] != ""
+                        lineups_final[5] = string(i)
+                    elseif lineups_final[5] != ""
+                        lineups_final[3] = string(i)
+                    end
+                end
+                if hitters[i,:Position] == "2B/OF"
+                    if lineups_final[8] != ""
+                        lineups_final[3] = string(i)
+                    elseif lineups_final[3] != ""
+                        if lineups_final[6] == ""
+                            lineups_final[6] = string(i)
+                        elseif lineups_final[7] ==""
+                            lineups_final[7] = string(i)
+                        elseif lineups_final[8] == ""
+                            lineups_final[8] = string(i)
+                        end
+                    end
+                end
+                if hitters[i,:Position] == "3B/SS"
+                    if lineups_final[4] != ""
+                        lineups_final[5] = string(i)
+                    elseif lineups_final[5] != ""
+                        lineups_final[4] = string(i)
+                    end
+                end
+                if hitters[i,:Position] == "3B/OF"
+                    if lineups_final[8] != ""
+                        lineups_final[4] = string(i)
+                    elseif lineups_final[4] != ""
+                        if lineups_final[6] == ""
+                            lineups_final[6] = string(i)
+                        elseif lineups_final[7] ==""
+                            lineups_final[7] = string(i)
+                        elseif lineups_final[8] == ""
+                            lineups_final[8] = string(i)
+                        end
+                    end
+                end
+                if hitters[i,:Position] == "SS/OF"
+                    if lineups_final[8] != ""
+                        lineups_final[5] = string(i)
+                    elseif lineups_final[5] != ""
+                        if lineups_final[6] == ""
+                            lineups_final[6] = string(i)
+                        elseif lineups_final[7] ==""
+                            lineups_final[7] = string(i)
+                        elseif lineups_final[8] == ""
+                            lineups_final[8] = string(i)
+                        end
+                    end
+                end
+            end
+        end
+    end
+    println(lineups_final)
 end
 
 
@@ -706,143 +842,6 @@ end
                     leftovers = i
                     println(leftovers)
                     println(".")
-                    if hitters[i,:Position] == "1B/C"
-                        if lineup[1] != ""
-                            lineup[2] = string(hitters[i,1], " ", hitters[i,2])
-                        elseif lineup[2] != ""
-                            lineup[1] = string(hitters[i,1], " ", hitters[i,2])
-                        end
-                    end
-                    if hitters[i,:Position] == "2B/C"
-                        if lineup[1] != ""
-                            lineup[3] = string(hitters[i,1], " ", hitters[i,2])
-                        elseif lineup[3] != ""
-                            lineup[1] = string(hitters[i,1], " ", hitters[i,2])
-                        end
-                    end
-                    if hitters[i,:Position] == "3B/C"
-                        if lineup[1] != ""
-                            lineup[4] = string(hitters[i,1], " ", hitters[i,2])
-                        elseif lineup[4] != ""
-                            lineup[1] = string(hitters[i,1], " ", hitters[i,2])
-                        end
-                    end
-                    if hitters[i,:Position] == "SS/C"
-                        if lineup[1] != ""
-                            lineup[5] = string(hitters[i,1], " ", hitters[i,2])
-                        elseif lineup[5] != ""
-                            lineup[1] = string(hitters[i,1], " ", hitters[i,2])
-                        end
-                    end
-                    if hitters[i,:Position] == "C/OF"
-                        if lineup[8] != ""
-                            lineup[1] = string(hitters[i,1], " ", hitters[i,2])
-                        elseif lineup[1] != ""
-                            if lineup[6] == ""
-                                lineup[6] = string(hitters[i,1], " ", hitters[i,2])
-                            elseif lineup[7] ==""
-                                lineup[7] = string(hitters[i,1], " ", hitters[i,2])
-                            elseif lineup[8] == ""
-                                lineup[8] = string(hitters[i,1], " ", hitters[i,2])
-                            end
-                        end
-                    end
-                    if hitters[i,:Position] == "1B/2B"
-                        if lineup[2]!=""
-                            println(true)
-                            lineup[3] = string(hitters[i,1], " ", hitters[i,2])
-                        elseif lineup[3] !=""
-                            lineup[2] = string(hitters[i,1], " ", hitters[i,2])
-                            println(i)
-                        end
-                    end
-                    if hitters[i,:Position] == "1B/3B"
-                        if lineup[2] != ""
-                            lineup[4] = string(hitters[i,1], " ", hitters[i,2])
-                        elseif lineup[4] != ""
-                            lineup[2] = string(hitters[i,1], " ", hitters[i,2])
-                        end
-                    end
-                    if hitters[i,:Position] == "1B/SS"
-                        if lineup[2] != ""
-                            lineup[5] = string(hitters[i,1], " ", hitters[i,2])
-                        elseif lineup[5] != ""
-                            lineup[2] = string(hitters[i,1], " ", hitters[i,2])
-                        end
-                    end
-                    if hitters[i,:Position] == "1B/OF"
-                        if lineup[8] != ""
-                            lineup[2] = string(hitters[i,1], " ", hitters[i,2])
-                        elseif lineup[2] != ""
-                            if lineup[6] == ""
-                                lineup[6] = string(hitters[i,1], " ", hitters[i,2])
-                            elseif lineup[7] ==""
-                                lineup[7] = string(hitters[i,1], " ", hitters[i,2])
-                            elseif lineup[8] == ""
-                                lineup[8] = string(hitters[i,1], " ", hitters[i,2])
-                            end
-                        end
-                    end
-                    if hitters[i,:Position] == "2B/3B"
-                        if lineup[3] != ""
-                            lineup[4] = string(hitters[i,1], " ", hitters[i,2])
-                        elseif lineup[4] != ""
-                            lineup[3] = string(hitters[i,1], " ", hitters[i,2])
-                        end
-                    end
-                    if hitters[i,:Position] == "2B/SS"
-                        if lineup[3] != ""
-                            lineup[5] = string(hitters[i,1], " ", hitters[i,2])
-                        elseif lineup[5] != ""
-                            lineup[3] = string(hitters[i,1], " ", hitters[i,2])
-                        end
-                    end
-                    if hitters[i,:Position] == "2B/OF"
-                        if lineup[8] != ""
-                            lineup[3] = string(hitters[i,1], " ", hitters[i,2])
-                        elseif lineup[3] != ""
-                            if lineup[6] == ""
-                                lineup[6] = string(hitters[i,1], " ", hitters[i,2])
-                            elseif lineup[7] ==""
-                                lineup[7] = string(hitters[i,1], " ", hitters[i,2])
-                            elseif lineup[8] == ""
-                                lineup[8] = string(hitters[i,1], " ", hitters[i,2])
-                            end
-                        end
-                    end
-                    if hitters[i,:Position] == "3B/SS"
-                        if lineup[4] != ""
-                            lineup[5] = string(hitters[i,1], " ", hitters[i,2])
-                        elseif lineup[5] != ""
-                            lineup[4] = string(hitters[i,1], " ", hitters[i,2])
-                        end
-                    end
-                    if hitters[i,:Position] == "3B/OF"
-                        if lineup[8] != ""
-                            lineup[4] = string(hitters[i,1], " ", hitters[i,2])
-                        elseif lineup[4] != ""
-                            if lineup[6] == ""
-                                lineup[6] = string(hitters[i,1], " ", hitters[i,2])
-                            elseif lineup[7] ==""
-                                lineup[7] = string(hitters[i,1], " ", hitters[i,2])
-                            elseif lineup[8] == ""
-                                lineup[8] = string(hitters[i,1], " ", hitters[i,2])
-                            end
-                        end
-                    end
-                    if hitters[i,:Position] == "SS/OF"
-                        if lineup[8] != ""
-                            lineup[5] = string(hitters[i,1], " ", hitters[i,2])
-                        elseif lineup[5] != ""
-                            if lineup[6] == ""
-                                lineup[6] = string(hitters[i,1], " ", hitters[i,2])
-                            elseif lineup[7] ==""
-                                lineup[7] = string(hitters[i,1], " ", hitters[i,2])
-                            elseif lineup[8] == ""
-                                lineup[8] = string(hitters[i,1], " ", hitters[i,2])
-                            end
-                        end
-                    end
                 end
             end
         end
